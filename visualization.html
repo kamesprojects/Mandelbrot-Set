@@ -338,6 +338,10 @@
     gap: 14px;
   }
 
+  .stacked-controls {
+    grid-template-columns: 1fr;
+  }
+
   .field {
     display: grid;
     gap: 8px;
@@ -678,6 +682,16 @@
           <h2>Speedup a efektivita</h2>
         </div>
       </div>
+      <div class="generator-controls stacked-controls">
+        <div class="field">
+          <div class="field-label">Resolution</div>
+          <div class="chip-row" id="metricsResolutionChips"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">Max iteration</div>
+          <div class="chip-row" id="metricsIterationChips"></div>
+        </div>
+      </div>
       <table>
         <thead>
           <tr>
@@ -707,7 +721,7 @@
 
     <div class="generator-shell">
       <div>
-        <div class="generator-controls">
+        <div class="generator-controls stacked-controls">
           <div class="field">
             <label class="field-label" for="generatorMode">Rezim vypoctu</label>
             <select class="input" id="generatorMode" aria-label="Rezim vypoctu">
@@ -728,23 +742,13 @@
           </div>
 
           <div class="field">
-            <label class="field-label" for="generatorResolution">Resolution</label>
-            <select class="input" id="generatorResolution" aria-label="Resolution">
-              <option value="800x600">800x600</option>
-              <option value="1920x1080" selected>1920x1080</option>
-              <option value="2560x1440">2560x1440</option>
-              <option value="3840x2160">3840x2160</option>
-            </select>
+            <div class="field-label">Resolution</div>
+            <div class="chip-row" id="generatorResolutionChips"></div>
           </div>
 
           <div class="field">
-            <label class="field-label" for="generatorIterations">Max iteration</label>
-            <select class="input" id="generatorIterations" aria-label="Max iteration">
-              <option value="500">500</option>
-              <option value="1000" selected>1000</option>
-              <option value="2000">2000</option>
-              <option value="5000">5000</option>
-            </select>
+            <div class="field-label">Max iteration</div>
+            <div class="chip-row" id="generatorIterationChips"></div>
           </div>
         </div>
 
@@ -1210,10 +1214,6 @@ function renderInsights(rows, best) {
   document.getElementById("insightSourceText").textContent = `Sekvencne bloky pre ${state.resolution} su najnovsie z ${sources.sequential}, paralelne z ${sources.parallel}. Pre aktualny filter sa pouzili iba posledne dostupne mediany.`;
 }
 
-function renderSelectionSummary(best) {
-  document.getElementById("selectionSummary").textContent = `Vybrane je ${state.resolution} a maxIter=${state.iterations}. Najlepsi vysledok ma ${best.threads} vlakien s casom ${formatMs(best.time)}.`;
-}
-
 function setProgress(value) {
   const percent = Math.max(0, Math.min(100, value));
   document.getElementById("progressFill").style.width = `${percent}%`;
@@ -1255,22 +1255,26 @@ function applySelectedPreview(asset) {
 function updateGeneratorControls() {
   const modeSelect = document.getElementById("generatorMode");
   const threadSelect = document.getElementById("generatorThreads");
-  const resolutionSelect = document.getElementById("generatorResolution");
-  const iterationsSelect = document.getElementById("generatorIterations");
   const renderButton = document.getElementById("renderImageBtn");
-
-  if (resolutionSelect.value) {
-    state.resolution = resolutionSelect.value;
-  }
-  if (iterationsSelect.value) {
-    state.iterations = iterationsSelect.value;
-  }
 
   const asset = getSelectedImageAsset();
 
   threadSelect.disabled = modeSelect.value !== "parallel";
-  resolutionSelect.value = state.resolution;
-  iterationsSelect.value = state.iterations;
+
+  buildChips("generatorResolutionChips", resolutions, state.resolution, value => {
+    state.resolution = value;
+    updateGeneratorControls();
+    markSimulationStale("Zmenilo sa rozlisenie. Spusti simulaciu znova.");
+    render();
+  });
+
+  buildChips("generatorIterationChips", iterations, state.iterations, value => {
+    state.iterations = value;
+    updateGeneratorControls();
+    markSimulationStale("Zmenil sa max iteration. Spusti simulaciu znova.");
+    render();
+  });
+
   document.getElementById("generatorSummaryText").textContent = generatorState.mode === "parallel"
     ? `parallel / ${generatorState.threads} threads / ${state.resolution} / ${state.iterations} iter`
     : `sequential / ${state.resolution} / ${state.iterations} iter`;
@@ -1399,6 +1403,16 @@ function render() {
     render();
   });
 
+  buildChips("metricsResolutionChips", resolutions, state.resolution, value => {
+    state.resolution = value;
+    render();
+  });
+
+  buildChips("metricsIterationChips", iterations, state.iterations, value => {
+    state.iterations = value;
+    render();
+  });
+
   const rows = getRows();
   const best = getBestParallel(rows);
 
@@ -1406,7 +1420,6 @@ function render() {
   renderRuntimeBars(rows);
   renderMetricsTable(rows);
   renderInsights(rows, best);
-  renderSelectionSummary(best);
   updateGeneratorControls();
   markSimulationStale("Nastavenia sa zmenili. Spusti simulaciu, aby sa vybral novy PNG.");
 }
@@ -1421,20 +1434,6 @@ document.getElementById("generatorThreads").addEventListener("change", event => 
   generatorState.threads = Number(event.target.value);
   updateGeneratorControls();
   markSimulationStale("Zmenil sa pocet vlakien. Spusti simulaciu znova.");
-});
-
-document.getElementById("generatorResolution").addEventListener("change", event => {
-  state.resolution = event.target.value;
-  updateGeneratorControls();
-  markSimulationStale("Zmenilo sa rozlisenie. Spusti simulaciu znova.");
-  render();
-});
-
-document.getElementById("generatorIterations").addEventListener("change", event => {
-  state.iterations = event.target.value;
-  updateGeneratorControls();
-  markSimulationStale("Zmenil sa max iteration. Spusti simulaciu znova.");
-  render();
 });
 
 document.getElementById("renderImageBtn").addEventListener("click", () => {
