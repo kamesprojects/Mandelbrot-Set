@@ -18,14 +18,14 @@ param(
 )
 
 Write-Host "Building Release..."
-dotnet build -c Release --nologo -v q
+dotnet build MandelbrotSet.csproj -c Release --nologo -v q
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Build failed!" -ForegroundColor Red
     exit 1
 }
 
-$exe = "$PSScriptRoot\bin\Release\net10.0-windows\3-volitelna.exe"
+$exe = "$PSScriptRoot\bin\Release\net10.0-windows\MandelbrotSet.exe"
 $extra = if ($cmd) { "--cmd" } else { $null }
 
 switch ($Mode) {

@@ -74,9 +74,10 @@ namespace MandelbrotDemo
             if (!_cmdOnly)
             {
                 Console.WriteLine(mode == PrintMode.Intro 
-                    ? $"resolution: {MandelbrotConfig.WidthPx}x{MandelbrotConfig.HeightPx} | iterations: {MandelbrotConfig.MaxIterations}"
+                    ? $"resolution: {MandelbrotConfig.WidthPx}x{MandelbrotConfig.HeightPx} | iterations: {MandelbrotConfig.MaxIterations}\ncenter: ({MandelbrotConfig.CenterX}, {MandelbrotConfig.CenterY}) | scale: {MandelbrotConfig.Scale}"
                     : $"report file: {MandelbrotConfig.ReportFilename}");
             }
+            Console.Out.Flush();
         }
 
         // Computes the Mandelbrot set once and opens the result in a window.
@@ -86,7 +87,6 @@ namespace MandelbrotDemo
         {
             var sw = Stopwatch.StartNew();
             int[] data;
-
             // Compute iteration counts for every pixel — sequential or parallel based on config
             if (MandelbrotConfig.Parallel)
             {

@@ -348,6 +348,7 @@ namespace MandelbrotDemo
         Console.WriteLine(new string('-', 40));
         for (int i = 0; i < MandelbrotConfig.times.Length; i++)
           Console.WriteLine($"Run {i + 1}: {MandelbrotConfig.times[i]} ms");
+        Console.Out.Flush();
         return;
       }
 

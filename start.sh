@@ -38,9 +38,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 echo "Building Release..."
-dotnet build -c Release --nologo -v q
+dotnet build MandelbrotSet.csproj -c Release --nologo -v q
 
-EXE="./bin/Release/net10.0-windows/3-volitelna.exe"
+EXE="./bin/Release/net10.0-windows/MandelbrotSet.exe"
 
 case "$MODE" in
     benchmark)
