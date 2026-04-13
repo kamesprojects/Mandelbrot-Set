@@ -246,10 +246,30 @@ namespace MandelbrotDemo
     {
       // Normalized escape speed: 0 = instant escape, 1 = very slow escape
       double t = (double)iteration / maxIterations;
+      
+      // Stretch the gradient: the square root pulls colors out of the dark much faster,
+      // ensuring a beautiful rich dark blue color for points with a fast escape.
+      t = Math.Sqrt(t);
 
+      // Classic Wikipedia coloring polynomial:
+      // Small t (fast escape) gives high blue. 
+      // Medium t gives light blue / white.
+      // High t (slow escape near boundary) gives yellow/black.
       r = (byte)(9 * (1 - t) * t * t * t * 255);
       g = (byte)(15 * (1 - t) * (1 - t) * t * t * 255);
       b = (byte)(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
+
+      // --- Alternative color maps ---
+      
+      // Red background (Fire colors):
+      // r = (byte)(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
+      // g = (byte)(15 * (1 - t) * (1 - t) * t * t * 255);
+      // b = (byte)(9 * (1 - t) * t * t * t * 255);
+
+      // Green background (Toxic/Matrix colors):
+      // r = (byte)(9 * (1 - t) * t * t * t * 255);
+      // g = (byte)(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
+      // b = (byte)(15 * (1 - t) * (1 - t) * t * t * 255);
     }
 
     // Runs the Mandelbrot computation benchmark according to MandelbrotConfig settings.
